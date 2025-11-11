@@ -1,0 +1,13 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY ../../package.json ../../pnpm-workspace.yaml ../../tsconfig.base.json ../../tsconfig.json ./
+COPY ../../packages ./packages
+COPY ../../services/automations ./services/automations
+
+RUN npm install -g pnpm@9 && pnpm install --filter @omni/automations --prod
+RUN pnpm --filter @omni/shared build && pnpm --filter @omni/automations build
+
+WORKDIR /app/services/automations
+CMD ["node", "dist/index.js"]

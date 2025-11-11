@@ -1,0 +1,18 @@
+[
+  {
+    "key": "ctrl+shift+r",
+    "command": "workbench.action.tasks.runTask",
+    "args": "🚀 Copilot Client starten",
+    "when": "workspaceFolderCount != 0"
+  },
+  {
+    "key": "ctrl+shift+d",
+    "command": "workbench.action.debug.start",
+    "when": "debuggersAvailable && debugState == 'inactive'"
+  },
+  {
+    "key": "f5",
+    "command": "workbench.action.debug.start",
+    "when": "!inDebugMode"
+  }
+]

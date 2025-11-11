@@ -1,0 +1,15 @@
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+COPY ../../package.json ../../pnpm-workspace.yaml ../../tsconfig.base.json ../../tsconfig.json ./
+COPY ../../packages ./packages
+COPY ../../services/console ./services/console
+
+RUN npm install -g pnpm@9 && pnpm install --filter @omni/console --prod
+RUN pnpm --filter @omni/console build
+
+FROM nginx:1.27-alpine
+COPY --from=builder /app/services/console/dist /usr/share/nginx/html
+EXPOSE 4173
+CMD ["nginx", "-g", "daemon off;"]

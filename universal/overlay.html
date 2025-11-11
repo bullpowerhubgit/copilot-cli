@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copilot Universal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="overlay-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <span class="logo">🤖</span>
+                <span class="title">Copilot Universal</span>
+            </div>
+            <div class="header-right">
+                <button class="icon-btn" onclick="openSettings()" title="Einstellungen">⚙️</button>
+                <button class="icon-btn" onclick="minimizeOverlay()" title="Minimieren (Ctrl+Shift+A)">➖</button>
+                <button class="icon-btn close-btn" onclick="closeOverlay()" title="Schließen">✕</button>
+            </div>
+        </div>
+
+        <!-- Quick Action Bar -->
+        <div class="quick-actions">
+            <button class="quick-btn" onclick="analyzeClipboard()" title="Ctrl+Shift+C">
+                📋 Zwischenablage
+            </button>
+            <button class="quick-btn" onclick="quickScreenshot()" title="Ctrl+Shift+S">
+                📸 Screenshot
+            </button>
+            <button class="quick-btn" onclick="pasteResponse()" title="Ctrl+Shift+V">
+                📝 Einfügen
+            </button>
+            <select id="quickModel" class="quick-select" onchange="changeModel()">
+                <!-- Wird dynamisch gefüllt -->
+            </select>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div id="messages" class="messages">
+                <div class="system-message">
+                    <h3>👋 Willkommen beim Universal Assistant!</h3>
+                    <p>Dieser Assistent funktioniert in <strong>jeder App</strong>!</p>
+                    <div class="shortcuts">
+                        <h4>⌨️ Globale Tastenkombinationen:</h4>
+                        <ul>
+                            <li><kbd>Ctrl+Shift+A</kbd> - Öffnen/Schließen</li>
+                            <li><kbd>Ctrl+Shift+C</kbd> - Zwischenablage analysieren</li>
+                            <li><kbd>Ctrl+Shift+V</kbd> - Antwort einfügen</li>
+                            <li><kbd>Ctrl+Shift+S</kbd> - Screenshot analysieren</li>
+                        </ul>
+                    </div>
+                    <p class="hint">💡 Funktioniert in Word, Browser, Editor, etc!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="input-area">
+            <div class="input-wrapper">
+                <textarea 
+                    id="messageInput" 
+                    class="message-input" 
+                    placeholder="Frage stellen... (Enter zum Senden)"
+                    rows="2"
+                ></textarea>
+                <div class="input-actions">
+                    <button class="action-btn" onclick="sendMessage()" title="Senden (Enter)">
+                        ➤
+                    </button>
+                    <button class="action-btn secondary" onclick="copyToClipboard()" title="In Zwischenablage">
+                        📋
+                    </button>
+                    <button class="action-btn secondary" onclick="insertIntoApp()" title="In App einfügen">
+                        ⌨️
+                    </button>
+                </div>
+            </div>
+            <div class="input-footer">
+                <span id="statusText" class="status">Bereit</span>
+                <span class="hint">Enter senden • Shift+Enter neue Zeile</span>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Einstellungen</h2>
+                    <button class="close-btn" onclick="closeSettings()">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="settings-tabs">
+                        <button class="tab-btn active" onclick="switchTab('api')">API-Keys</button>
+                        <button class="tab-btn" onclick="switchTab('hotkeys')">Hotkeys</button>
+                        <button class="tab-btn" onclick="switchTab('about')">Info</button>
+                    </div>
+
+                    <div id="apiTab" class="tab-content active">
+                        <div class="settings-section">
+                            <h3>⚡ Groq API Key (Empfohlen)</h3>
+                            <input type="password" id="groqApiKey" class="api-input" placeholder="gsk_...">
+                            <small><a href="https://console.groq.com" target="_blank">Key erstellen</a></small>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>💎 Google API Key</h3>
+                            <input type="password" id="googleApiKey" class="api-input" placeholder="AIza...">
+                            <small><a href="https://makersuite.google.com/app/apikey" target="_blank">Key erstellen</a></small>
+                        </div>
+
+                        <div class="settings-section">
+                            <h3>🏠 Ollama Host (Lokal)</h3>
+                            <input type="text" id="ollamaHost" class="api-input" value="http://localhost:11434">
+                        </div>
+
+                        <div class="settings-section">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="autostartCheckbox">
+                                🚀 Automatisch mit Windows starten
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="hotkeysTab" class="tab-content">
+                        <div class="hotkey-list">
+                            <div class="hotkey-item">
+                                <span class="hotkey-desc">Overlay öffnen/schließen</span>
+                                <kbd>Ctrl+Shift+A</kbd>
+                            </div>
+                            <div class="hotkey-item">
+                                <span class="hotkey-desc">Zwischenablage analysieren</span>
+                                <kbd>Ctrl+Shift+C</kbd>
+                            </div>
+                            <div class="hotkey-item">
+                                <span class="hotkey-desc">Antwort einfügen</span>
+                                <kbd>Ctrl+Shift+V</kbd>
+                            </div>
+                            <div class="hotkey-item">
+                                <span class="hotkey-desc">Screenshot analysieren</span>
+                                <kbd>Ctrl+Shift+S</kbd>
+                            </div>
+                        </div>
+                        <p class="hint">💡 Diese Hotkeys funktionieren system-weit in jeder Anwendung!</p>
+                    </div>
+
+                    <div id="aboutTab" class="tab-content">
+                        <div class="about-section">
+                            <h3>🤖 Copilot Universal Assistant</h3>
+                            <p>Version 1.0.0</p>
+                            <p>Ein kostenloser AI-Assistent für Windows, der in jeder App funktioniert!</p>
+                            
+                            <h4>Features:</h4>
+                            <ul>
+                                <li>✅ Funktioniert in allen Windows-Apps</li>
+                                <li>✅ Globale Tastenkombinationen</li>
+                                <li>✅ Zwischenablage-Integration</li>
+                                <li>✅ Screenshot-Analyse</li>
+                                <li>✅ Auto-Type in jede App</li>
+                                <li>✅ 17 kostenlose AI-Modelle</li>
+                                <li>✅ System Tray Integration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-secondary" onclick="closeSettings()">Abbrechen</button>
+                    <button class="btn-primary" onclick="saveSettings()">Speichern</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="renderer.js"></script>
+</body>
+</html>

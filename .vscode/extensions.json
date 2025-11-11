@@ -1,0 +1,10 @@
+{
+  "recommendations": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "christian-kohler.npm-intellisense",
+    "ms-vscode.vscode-node-azure-pack",
+    "github.copilot",
+    "github.copilot-chat"
+  ]
+}

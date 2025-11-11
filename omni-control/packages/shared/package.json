@@ -1,0 +1,21 @@
+{
+  "name": "@omni/shared",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "dotenv": "16.4.5",
+    "joi": "17.11.0",
+    "jsonwebtoken": "9.0.2",
+    "winston": "3.13.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "9.0.6",
+    "@types/node": "20.11.30",
+    "tslib": "2.6.2"
+  }
+}

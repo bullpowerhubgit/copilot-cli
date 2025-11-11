@@ -1,0 +1,55 @@
+{
+  "name": "copilot-universal-assistant",
+  "version": "1.0.0",
+  "description": "Universeller AI-Assistent für Windows - funktioniert mit jeder App",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build:win": "electron-builder --win",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.copilot.universal",
+    "productName": "Copilot Universal",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": ["nsis", "portable"],
+      "icon": "assets/icon.ico",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Copilot Universal"
+    }
+  },
+  "keywords": [
+    "copilot",
+    "universal",
+    "ai",
+    "assistant",
+    "windows",
+    "hotkey",
+    "overlay"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "node-fetch": "^3.3.2",
+    "robotjs": "^0.6.0",
+    "node-global-key-listener": "^0.1.1",
+    "clipboardy": "^3.0.0",
+    "screenshot-desktop": "^1.15.0",
+    "marked": "^11.0.0"
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}

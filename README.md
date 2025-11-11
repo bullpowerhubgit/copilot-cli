@@ -1,83 +1,306 @@
-# GitHub Copilot CLI (Public Preview)
+# 🤖 Kostenloser Copilot CLI Client
 
-The power of GitHub Copilot, now in your terminal.
+Ein **kostenloser** AI-gestützter Kommandozeilen-Assistent mit ähnlichen Funktionen wie GitHub Copilot CLI - aber komplett gratis!
 
-GitHub Copilot CLI brings AI-powered coding assistance directly to your command line, enabling you to build, debug, and understand code through natural language conversations. Powered by the same agentic harness as GitHub's Copilot coding agent, it provides intelligent assistance while staying deeply integrated with your GitHub workflow.
+## ✨ Features
 
-See [our official documentation](https://docs.github.com/copilot/concepts/agents/about-copilot-cli) for more information.
+- 🆓 **100% Kostenlos** - Nutzt kostenlose AI-Modelle (Groq, OpenRouter, Hugging Face)
+- 💬 **Interaktiver Chat** - Stelle Fragen und erhalte sofort Antworten
+- 🎨 **Schöne CLI-Oberfläche** - Mit Farben und übersichtlicher Darstellung
+- 🔄 **Konversationshistorie** - Der Assistent merkt sich den Kontext
+- 🚀 **Schnell & Einfach** - Keine komplizierte Einrichtung
 
-![Image of the splash screen for the Copilot CLI](https://github.com/user-attachments/assets/51ac25d2-c074-467a-9c88-38a8d76690e3)
+## 🚀 Schnellstart
 
-## 🚀 Introduction and Overview
+### Voraussetzungen
 
-We're bringing the power of GitHub Copilot coding agent directly to your terminal. With GitHub Copilot CLI, you can work locally and synchronously with an AI agent that understands your code and GitHub context.
-
-- **Terminal-native development:** Work with Copilot coding agent directly in your command line — no context switching required.
-- **GitHub integration out of the box:** Access your repositories, issues, and pull requests using natural language, all authenticated with your existing GitHub account.
-- **Agentic capabilities:** Build, edit, debug, and refactor code with an AI collaborator that can plan and execute complex tasks.
-- **MCP-powered extensibility:** Take advantage of the fact that the coding agent ships with GitHub's MCP server by default and supports custom MCP servers to extend capabilities.
-- **Full control:** Preview every action before execution — nothing happens without your explicit approval.
-
-We're still early in our journey, but with your feedback, we're rapidly iterating to make the GitHub Copilot CLI the best possible companion in your terminal.
-
-## 📦 Getting Started
-
-### Supported Platforms
-
-- **Linux**
-- **macOS**
-- **Windows**
-
-### Prerequisites
-
-- **Node.js** v22 or higher
-- **npm** v10 or higher
-- (On Windows) **PowerShell** v6 or higher
-- An **active Copilot subscription**. See [Copilot plans](https://github.com/features/copilot/plans?ref_cta=Copilot+plans+signup&ref_loc=install-copilot-cli&ref_page=docs).
-
-If you have access to GitHub Copilot via your organization of enterprise, you cannot use GitHub Copilot CLI if your organization owner or enterprise administrator has disabled it in the organization or enterprise settings. See [Managing policies and features for GitHub Copilot in your organization](http://docs.github.com/copilot/managing-copilot/managing-github-copilot-in-your-organization/managing-github-copilot-features-in-your-organization/managing-policies-for-copilot-in-your-organization) for more information.
+- **Node.js** v18 oder höher
+- **npm** v8 oder höher
+- **Visual Studio Code** (empfohlen)
 
 ### Installation
 
-Install globally with npm:
 ```bash
-npm install -g @github/copilot
+# 1. Repository klonen oder herunterladen
+cd copilot-cli
+
+# 2. Dependencies installieren
+npm install
+
+# 3. API-Key konfigurieren (siehe unten)
+cp .env.example .env
+# Bearbeite .env und füge deinen kostenlosen API-Key hinzu
+
+# 4. Starten!
+npm start
 ```
 
-### Launching the CLI
+### 🎯 Mit Visual Studio Code (Empfohlen!)
+
+**Einfachster Weg:**
+1. Öffne das Projekt in VS Code
+2. Drücke **F5**
+3. Fertig! 🎉
+
+Siehe [VSCODE.md](VSCODE.md) für detaillierte VS Code Anleitungen.
+
+### Globale Installation (Optional)
 
 ```bash
-copilot
+npm link
+copilot-client
 ```
 
-On first launch, you'll be greeted with our adorable animated banner! If you'd like to see this banner again, launch `copilot` with the `--banner` flag. 
+## 🔑 Kostenlose API-Keys einrichten
 
-If you're not currently logged in to GitHub, you'll be prompted to use the `/login` slash command. Enter this command and follow the on-screen instructions to authenticate.
+Du brauchst mindestens einen kostenlosen API-Key von einem dieser Anbieter:
 
-#### Authenticate with a Personal Access Token (PAT)
+### ⚡ Option 1: Groq (Empfohlen - extrem schnell!)
 
-You can also authenticate using a fine-grained PAT with the "Copilot Requests" permission enabled.
+**Warum Groq?** Blitzschnelle Antworten, komplett kostenlos, keine Kreditkarte nötig!
 
-1. Visit https://github.com/settings/personal-access-tokens/new
-2. Under "Permissions," click "add permissions" and select "Copilot Requests"
-3. Generate your token
-4. Add the token to your environment via the environment variable `GH_TOKEN` or `GITHUB_TOKEN` (in order of precedence)
+1. Gehe zu https://console.groq.com
+2. Erstelle einen kostenlosen Account
+3. Navigiere zu "API Keys" und generiere einen neuen Key
+4. Füge ihn in die `.env` Datei ein:
+   ```
+   GROQ_API_KEY=gsk_...
+   ```
 
-### Using the CLI
+### 💎 Option 2: Google Gemini (Sehr großzügiges kostenloses Limit)
 
-Launch `copilot` in a folder that contains code you want to work with. 
+1. Gehe zu https://makersuite.google.com/app/apikey
+2. Melde dich mit deinem Google-Konto an
+3. Erstelle einen API-Key
+4. Füge ihn in die `.env` Datei ein:
+   ```
+   GOOGLE_API_KEY=AIza...
+   ```
 
-By default, `copilot` utilizes Claude Sonnet 4.5. Run the `/model` slash command to choose from other available models, including Claude Sonnet 4 and GPT-5
+### 🌐 Option 3: OpenRouter (Viele Modelle zur Auswahl)
 
-Each time you submit a prompt to GitHub Copilot CLI, your monthly quota of premium requests is reduced by one. For information about premium requests, see [About premium requests](https://docs.github.com/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests).
+1. Gehe zu https://openrouter.ai
+2. Erstelle einen Account
+3. Generiere einen API-Key (bekomme kostenlose Credits!)
+4. Füge ihn in die `.env` Datei ein:
+   ```
+   OPENROUTER_API_KEY=sk-or-...
+   ```
 
-For more information about how to use the GitHub Copilot CLI, see [our official documentation](https://docs.github.com/copilot/concepts/agents/about-copilot-cli).
+### 🤗 Option 4: Hugging Face (Open-Source Modelle)
 
+1. Gehe zu https://huggingface.co/settings/tokens
+2. Erstelle einen Access Token (Read-Rechte reichen)
+3. Füge ihn in die `.env` Datei ein:
+   ```
+   HUGGINGFACE_API_KEY=hf_...
+   ```
 
-## 📢 Feedback and Participation
+### 🏠 Option 5: Ollama (100% Lokal - kein API-Key nötig!)
 
-We're excited to have you join us early in the Copilot CLI journey.
+**Perfekt für Privatsphäre und Offline-Nutzung!**
 
-This is an early-stage preview, and we're building quickly. Expect frequent updates--please keep your client up to date for the latest features and fixes!
+1. Installiere Ollama: https://ollama.ai
+2. Führe im Terminal aus:
+   ```powershell
+   ollama pull llama3.1
+   ollama serve
+   ```
+3. Fertig! Kein API-Key nötig, läuft komplett lokal auf deinem PC
 
-Your insights are invaluable! Open issue in this repo, join Discussions, and run `/feedback` from the CLI to submit a confidential feedback survey!
+## 📖 Verwendung
+
+### Starten
+
+```bash
+npm start
+```
+
+oder (wenn global installiert):
+
+```bash
+copilot-client
+```
+
+### Mit Banner starten
+
+```bash
+npm start -- --banner
+```
+
+### Verfügbare Befehle
+
+Während der Client läuft, kannst du folgende Befehle verwenden:
+
+- `/help` - Zeigt alle verfügbaren Befehle
+- `/model` - Wähle ein anderes AI-Modell
+- `/config` - Zeige aktuelle Konfiguration
+- `/clear` - Lösche die Konversationshistorie
+- `/feedback` - Gib Feedback
+- `/exit` - Beende den Client
+
+### Beispiel-Konversation
+
+```
+Du: Wie erstelle ich eine Node.js-Anwendung?
+
+Assistent: Ich helfe dir gerne! Hier sind die Schritte...
+
+Du: Kannst du mir ein Beispiel zeigen?
+
+Assistent: Natürlich! Hier ist ein einfaches Beispiel...
+```
+
+## 🎯 Verfügbare AI-Modelle
+
+Der Client unterstützt **17 verschiedene kostenlose AI-Modelle**!
+
+### ⚡ Groq Modelle (Extrem schnell!)
+- **Llama 3.1 70B** - Groß, leistungsstark, schnell (empfohlen!)
+- **Llama 3.3 70B** - Neueste Version mit verbesserten Fähigkeiten
+- **Mixtral 8x7B** - Sehr gut für komplexe Aufgaben
+- **Gemma 2 9B** - Schnell und effizient
+
+### 💎 Google Gemini Modelle (Großzügiges Limit)
+- **Gemini 1.5 Flash** - Blitzschnell, kostenlos
+- **Gemini 1.5 Pro** - Noch leistungsstärker
+
+### 🌐 OpenRouter Modelle (Viele Optionen)
+- **GPT-3.5 Turbo** - Mit Credits nutzbar
+- **Claude 3 Haiku** - Schnell und präzise
+- **Mistral 7B** - Komplett kostenlos
+- **Llama 3.1 8B** - Kostenlose Version
+
+### 🤗 Hugging Face Modelle (Open-Source)
+- **Llama 2 7B** - Bewährt und zuverlässig
+- **Mistral 7B** - Sehr gute Qualität
+- **Zephyr 7B** - Optimiert für Chats
+
+### 🏠 Ollama Modelle (100% Lokal!)
+- **Llama 3.1** - Keine Internet-Verbindung nötig
+- **Mistral** - Schnell und privat
+- **CodeLlama** - Spezialisiert auf Code
+- **Gemma 2** - Neuestes lokales Modell
+
+**Wechsle jederzeit zwischen den Modellen mit dem `/model` Befehl!**
+
+## 📁 Projektstruktur
+
+```
+copilot-cli/
+├── src/                  # CLI-Version (Terminal)
+│   ├── index.js          # Haupteinstiegspunkt
+│   ├── interactive.js    # Interaktiver Chat-Modus
+│   ├── ai-provider.js    # AI-Provider-Integration
+│   ├── config.js         # Konfigurationsverwaltung
+│   └── banner.js         # ASCII-Banner
+├── desktop/              # Desktop-Version (GUI)
+│   ├── main.js           # Electron Main Process
+│   ├── renderer.js       # Frontend-Logik
+│   ├── index.html        # Grafische Oberfläche
+│   ├── styles.css        # Design
+│   └── README.md         # Desktop-Dokumentation
+├── universal/            # Universal-Version ⭐ NEU!
+│   ├── main.js           # System-weite Integration
+│   ├── overlay.html      # Overlay-Interface
+│   ├── renderer.js       # Overlay-Logik
+│   ├── styles.css        # Overlay-Design
+│   └── README.md         # Universal-Dokumentation
+├── .vscode/              # VS Code Konfiguration
+├── .env.example          # Beispiel-Umgebungsvariablen
+├── package.json          # Projektinformationen (CLI)
+└── README.md             # Diese Datei
+```
+
+## 🌟 3 Versionen verfügbar!
+
+### 1️⃣ CLI-Version (Terminal)
+Für Entwickler und Terminal-Fans
+```powershell
+npm start
+```
+
+### 2️⃣ Desktop-Version (Grafische App)
+Schöne GUI für alle Nutzer
+```powershell
+cd desktop
+npm install
+npm start
+```
+
+### 3️⃣ Universal-Version (System-weit) ⭐ EMPFOHLEN!
+**Funktioniert in JEDER Windows-App!**
+```powershell
+cd universal
+npm install
+npm start
+```
+
+### Welche Version ist die richtige?
+
+| Feature | CLI | Desktop | **Universal** |
+|---------|-----|---------|---------------|
+| Interface | Terminal | Fenster | **Overlay** |
+| Hotkeys (global) | ❌ | ❌ | **✅** |
+| Funktioniert in allen Apps | ❌ | ❌ | **✅** |
+| Auto-Type in Apps | ❌ | ❌ | **✅** |
+| Zwischenablage-Auto | ❌ | ❌ | **✅** |
+| Screenshot-Analyse | ❌ | ❌ | **✅** |
+| System Tray | ❌ | ❌ | **✅** |
+| Windows-Autostart | ❌ | ❌ | **✅** |
+
+**🎯 Empfehlung: Universal-Version für maximale Power!**
+
+Siehe:
+- [CLI README](src/README.md)
+- [Desktop README](desktop/README.md)
+- [Universal README](universal/README.md) ⭐
+
+Alle Versionen nutzen dieselben 17 kostenlosen AI-Modelle!
+
+## � Neu: Omni Control Suite (All-in-One Fernzugriff)
+
+Für umfassenden PC-Fernzugriff, Automatisierung und KI-gesteuerte Steuerung steht nun ein komplett neues Projekt bereit:
+
+- `omni-control/` – Control Hub, Remote Agent, Web-Konsole, Automations-Bridges
+- Vollständiges Docker-Setup (Gateway, Console, n8n, Browserless)
+- MCPControl-Anbindung und Intel AMT/KVM Adapter (Preview)
+
+👉 Details und Setup: `omni-control/README.md`
+
+## �🛠️ Entwicklung
+
+```bash
+# Im Watch-Modus entwickeln
+npm run dev
+
+# Normal starten
+npm start
+```
+
+## 💡 Tipps
+
+- **Groq Llama 3.1 70B** ist am schnellsten und wird empfohlen für beste Performance
+- **Google Gemini Flash** hat ein sehr großzügiges kostenloses Limit
+- **Ollama** ist perfekt wenn du offline arbeiten oder maximale Privatsphäre möchtest
+- Die Konversationshistorie bleibt während einer Session erhalten
+- Nutze `/clear` um die Historie zu löschen und neu zu starten
+- Probiere verschiedene Modelle aus - jedes hat seine Stärken!
+- Alle Cloud-API-Keys sind kostenlos erhältlich!
+
+## 🤝 Beitragen
+
+Feedback und Beiträge sind willkommen! Öffne einfach ein Issue oder Pull Request.
+
+## 📄 Lizenz
+
+MIT License - siehe [LICENSE.md](LICENSE.md)
+
+## ⚠️ Hinweis
+
+Dies ist ein inoffizielles Projekt und steht in keiner Verbindung mit GitHub's offiziellem Copilot CLI. Es handelt sich um eine kostenlose Alternative für Entwickler.
+
+---
+
+**Viel Spaß beim Coden! 🚀**
+

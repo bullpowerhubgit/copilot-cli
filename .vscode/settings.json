@@ -1,0 +1,48 @@
+{
+    "github.copilot.enable": {
+        "plaintext": true,
+        "markdown": true,
+        "scminput": true
+    },
+    "github.copilot.nextEditSuggestions.enabled": true,
+    
+    // Copilot CLI Client Einstellungen
+    "files.autoSave": "afterDelay",
+    "files.autoSaveDelay": 1000,
+    
+    // JavaScript/Node.js Einstellungen
+    "javascript.suggest.autoImports": true,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    
+    // Terminal Einstellungen
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "terminal.integrated.fontSize": 14,
+    
+    // Editor Einstellungen für bessere Entwicklung
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll": "explicit"
+    },
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true,
+    
+    // Dateien ausschließen
+    "files.exclude": {
+        "**/node_modules": true,
+        "**/.git": true
+    },
+    
+    // Empfohlene Dateizuordnungen
+    "files.associations": {
+        ".env.example": "dotenv",
+        ".env": "dotenv"
+    },
+    
+    // NPM Scripts im Explorer anzeigen
+    "npm.enableScriptExplorer": true,
+    
+    // Debugging
+    "debug.console.fontSize": 14,
+    "debug.internalConsoleOptions": "openOnSessionStart"
+}
+

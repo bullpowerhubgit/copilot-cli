@@ -1,0 +1,122 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "📦 Dependencies installieren",
+      "type": "shell",
+      "command": "npm install",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🚀 Copilot Client starten",
+      "type": "shell",
+      "command": "npm start",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "isBackground": false,
+      "problemMatcher": []
+    },
+    {
+      "label": "🔄 Dev Modus (mit Auto-Reload)",
+      "type": "shell",
+      "command": "npm run dev",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
+      "label": "🎨 Mit Banner starten",
+      "type": "shell",
+      "command": "npm start -- --banner",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "focus": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🔗 Global installieren (npm link)",
+      "type": "shell",
+      "command": "npm link",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🧹 Dependencies aufräumen",
+      "type": "shell",
+      "command": "Remove-Item -Recurse -Force node_modules; npm install",
+      "windows": {
+        "command": "Remove-Item -Recurse -Force node_modules; npm install"
+      },
+      "linux": {
+        "command": "rm -rf node_modules && npm install"
+      },
+      "osx": {
+        "command": "rm -rf node_modules && npm install"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "📝 .env Datei erstellen",
+      "type": "shell",
+      "command": "Copy-Item .env.example .env",
+      "windows": {
+        "command": "Copy-Item .env.example .env"
+      },
+      "linux": {
+        "command": "cp .env.example .env"
+      },
+      "osx": {
+        "command": "cp .env.example .env"
+      },
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "🎯 Vollständiges Setup (Alles einrichten)",
+      "dependsOn": [
+        "📝 .env Datei erstellen",
+        "📦 Dependencies installieren"
+      ],
+      "dependsOrder": "sequence",
+      "group": "build",
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ]
+}
