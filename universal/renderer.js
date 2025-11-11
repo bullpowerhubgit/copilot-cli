@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadConfig() {
     config = await window.electronAPI.getConfig();
     currentModel = config.defaultModel || 'groq-llama-70b';
-    
+
     if (config.autostart) {
         document.getElementById('autostartCheckbox').checked = true;
     }
@@ -23,7 +23,7 @@ async function loadConfig() {
 async function loadModels() {
     const models = await window.electronAPI.getModels();
     const select = document.getElementById('quickModel');
-    
+
     models.forEach(model => {
         const option = document.createElement('option');
         option.value = model.value;
@@ -35,7 +35,7 @@ async function loadModels() {
 
 function setupEventListeners() {
     const input = document.getElementById('messageInput');
-    
+
     // Enter to send
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -43,7 +43,7 @@ function setupEventListeners() {
             sendMessage();
         }
     });
-    
+
     // Auto-resize
     input.addEventListener('input', () => {
         input.style.height = 'auto';
@@ -57,12 +57,12 @@ function setupIPCListeners() {
         addSystemMessage(`📋 Zwischenablage analysieren:\n${text.substring(0, 100)}...`);
         document.getElementById('messageInput').value = `Analysiere bitte folgenden Text:\n\n${text}`;
     });
-    
+
     // Screenshot
     window.electronAPI.onScreenshotCaptured((path) => {
         addSystemMessage(`📸 Screenshot erstellt! (Beta - Textanalyse folgt)`);
     });
-    
+
     // Settings öffnen
     window.electronAPI.onOpenSettings(() => {
         openSettings();
@@ -72,25 +72,25 @@ function setupIPCListeners() {
 async function sendMessage() {
     const input = document.getElementById('messageInput');
     const message = input.value.trim();
-    
+
     if (!message) return;
-    
+
     // Add to UI
     addMessage('user', message);
     conversationHistory.push({ role: 'user', content: message });
-    
+
     input.value = '';
     input.style.height = 'auto';
-    
+
     // Set status
     setStatus('AI denkt nach...');
-    
+
     try {
         const result = await window.electronAPI.sendMessage({
             messages: conversationHistory,
             model: currentModel
         });
-        
+
         if (result.success) {
             addMessage('assistant', result.response);
             conversationHistory.push({ role: 'assistant', content: result.response });
@@ -108,22 +108,22 @@ async function sendMessage() {
 
 function addMessage(role, content) {
     const messages = document.getElementById('messages');
-    
+
     // Remove welcome message
     const welcome = messages.querySelector('.system-message');
     if (welcome) welcome.remove();
-    
+
     const div = document.createElement('div');
     div.className = `message ${role}`;
-    
+
     const icon = role === 'user' ? '👤' : '🤖';
     const roleName = role === 'user' ? 'Du' : 'Assistent';
-    
+
     div.innerHTML = `
         <div class="message-header">${icon} ${roleName}</div>
         <div class="message-content">${formatMessage(content)}</div>
     `;
-    
+
     messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
 }
@@ -208,7 +208,7 @@ function closeOverlay() {
 function openSettings() {
     const modal = document.getElementById('settingsModal');
     modal.classList.add('active');
-    
+
     // Load values
     document.getElementById('groqApiKey').value = config.groqApiKey || '';
     document.getElementById('googleApiKey').value = config.googleApiKey || '';
@@ -225,7 +225,7 @@ async function saveSettings() {
     config.googleApiKey = document.getElementById('googleApiKey').value;
     config.ollamaHost = document.getElementById('ollamaHost').value;
     config.autostart = document.getElementById('autostartCheckbox').checked;
-    
+
     await window.electronAPI.saveConfig(config);
     closeSettings();
     addSystemMessage('✅ Einstellungen gespeichert!');
@@ -235,7 +235,7 @@ function switchTab(tab) {
     // Remove active from all
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-    
+
     // Add active to selected
     event.target.classList.add('active');
     document.getElementById(tab + 'Tab').classList.add('active');

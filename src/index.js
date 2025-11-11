@@ -16,7 +16,7 @@ program
     if (options.banner) {
       showBanner();
     }
-    
+
     console.log(
       boxen(
         chalk.cyan.bold('🤖 Copilot CLI Client') +

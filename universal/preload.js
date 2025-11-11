@@ -9,7 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   getClipboard: () => ipcRenderer.invoke('get-clipboard'),
   setClipboard: (text) => ipcRenderer.invoke('set-clipboard', text),
   typeText: (text) => ipcRenderer.invoke('type-text', text),
-  
+
   // Event Listeners
   onClipboardRequest: (callback) => {
     ipcRenderer.on('clipboard-request', (event, text) => callback(text));

@@ -11,7 +11,7 @@ ${chalk.cyan('    ║')}   ${chalk.green('für die Kommandozeile')}             
 ${chalk.cyan('    ║')}                                           ${chalk.cyan('║')}
 ${chalk.cyan('    ╚═══════════════════════════════════════════╝')}
   `;
-  
+
   console.log(banner);
   console.log(chalk.gray('    Powered by kostenlose AI-Modelle\n'));
 }

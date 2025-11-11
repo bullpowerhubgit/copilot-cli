@@ -39,7 +39,7 @@ class AIProvider {
 
   async sendMessage(conversationHistory) {
     const provider = this.getProviderName();
-    
+
     switch (provider) {
       case 'Groq':
         return await this.sendToGroq(conversationHistory);
@@ -58,7 +58,7 @@ class AIProvider {
 
   async sendToGroq(conversationHistory) {
     const apiKey = this.config.groqApiKey;
-    
+
     if (!apiKey) {
       throw new Error('Groq API-Key nicht konfiguriert! Bitte in den Einstellungen hinzufügen.');
     }
@@ -95,7 +95,7 @@ class AIProvider {
 
   async sendToGoogleGemini(conversationHistory) {
     const apiKey = this.config.googleApiKey;
-    
+
     if (!apiKey) {
       throw new Error('Google API-Key nicht konfiguriert! Bitte in den Einstellungen hinzufügen.');
     }
@@ -106,7 +106,7 @@ class AIProvider {
     };
 
     const model = modelMap[this.modelName] || modelMap['google-gemini-flash'];
-    
+
     const contents = conversationHistory.map(msg => ({
       role: msg.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: msg.content }]
@@ -171,7 +171,7 @@ class AIProvider {
   async sendToOpenRouter(conversationHistory) {
     const apiKey = this.config.openrouterApiKey;
     if (!apiKey) throw new Error('OpenRouter API-Key nicht konfiguriert!');
-    
+
     const modelMap = {
       'openrouter-gpt35': 'openai/gpt-3.5-turbo',
       'openrouter-claude-haiku': 'anthropic/claude-3-haiku',
@@ -207,7 +207,7 @@ class AIProvider {
     };
 
     const lastMessage = conversationHistory[conversationHistory.length - 1];
-    
+
     const response = await fetch(
       `https://api-inference.huggingface.co/models/${modelMap[this.modelName] || modelMap['huggingface-mistral']}`,
       {

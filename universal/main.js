@@ -24,7 +24,7 @@ if (!gotTheLock) {
 
 function createOverlayWindow() {
   const { width, height } = screen.getPrimaryDisplay().workAreaSize;
-  
+
   overlayWindow = new BrowserWindow({
     width: 500,
     height: 600,
@@ -106,25 +106,25 @@ function toggleOverlay() {
 
 function setupTrayIcon() {
   const { Tray, Menu } = require('electron');
-  
+
   // Erstelle System Tray Icon
   const tray = new Tray(path.join(__dirname, 'assets/tray-icon.png'));
-  
+
   const contextMenu = Menu.buildFromTemplate([
-    { 
-      label: 'Copilot öffnen (Ctrl+Shift+A)', 
-      click: () => toggleOverlay() 
+    {
+      label: 'Copilot öffnen (Ctrl+Shift+A)',
+      click: () => toggleOverlay()
     },
     { type: 'separator' },
-    { 
-      label: 'Einstellungen', 
+    {
+      label: 'Einstellungen',
       click: () => {
         overlayWindow.show();
         overlayWindow.webContents.send('open-settings');
       }
     },
-    { 
-      label: 'Autostart', 
+    {
+      label: 'Autostart',
       type: 'checkbox',
       checked: app.getLoginItemSettings().openAtLogin,
       click: (item) => {
@@ -132,15 +132,15 @@ function setupTrayIcon() {
       }
     },
     { type: 'separator' },
-    { 
-      label: 'Beenden', 
-      click: () => app.quit() 
+    {
+      label: 'Beenden',
+      click: () => app.quit()
     }
   ]);
-  
+
   tray.setToolTip('Copilot Universal Assistant');
   tray.setContextMenu(contextMenu);
-  
+
   tray.on('click', () => {
     toggleOverlay();
   });
@@ -149,7 +149,7 @@ function setupTrayIcon() {
 async function handleClipboardRequest() {
   try {
     const clipboardText = clipboardy.readSync();
-    
+
     if (!clipboardText) {
       showNotification('Zwischenablage ist leer');
       return;
@@ -164,15 +164,15 @@ async function handleClipboardRequest() {
 
 function pasteLastResponse() {
   const lastResponse = store.get('lastResponse', '');
-  
+
   if (lastResponse) {
     clipboardy.writeSync(lastResponse);
-    
+
     // Simuliere Ctrl+V nach kurzer Verzögerung
     setTimeout(() => {
       robot.keyTap('v', ['control']);
     }, 100);
-    
+
     showNotification('Antwort eingefügt!');
   } else {
     showNotification('Keine Antwort verfügbar');
@@ -183,9 +183,9 @@ async function captureAndAnalyze() {
   try {
     const screenshot = require('screenshot-desktop');
     const imgPath = path.join(app.getPath('temp'), 'screenshot.png');
-    
+
     await screenshot({ filename: imgPath });
-    
+
     showNotification('Screenshot erstellt! Analyse folgt...');
     toggleOverlay();
     overlayWindow.webContents.send('screenshot-captured', imgPath);
@@ -197,7 +197,7 @@ async function captureAndAnalyze() {
 
 function showNotification(message) {
   const { Notification } = require('electron');
-  
+
   if (Notification.isSupported()) {
     new Notification({
       title: 'Copilot Universal',
@@ -248,11 +248,11 @@ ipcMain.handle('set-clipboard', (event, text) => {
 ipcMain.handle('type-text', (event, text) => {
   // Schreibe in Zwischenablage und simuliere Paste
   clipboardy.writeSync(text);
-  
+
   setTimeout(() => {
     robot.keyTap('v', ['control']);
   }, 200);
-  
+
   return true;
 });
 
@@ -265,12 +265,12 @@ ipcMain.handle('send-message', async (event, { messages, model }) => {
       googleApiKey: store.get('googleApiKey', ''),
       ollamaHost: store.get('ollamaHost', 'http://localhost:11434')
     });
-    
+
     const response = await aiProvider.sendMessage(messages);
-    
+
     // Speichere letzte Antwort
     store.set('lastResponse', response);
-    
+
     return { success: true, response };
   } catch (error) {
     return { success: false, error: error.message };
