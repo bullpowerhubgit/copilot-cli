@@ -2,20 +2,34 @@ import fetch from 'node-fetch';
 import { loadConfig } from './config.js';
 
 /**
- * Custom error for API-related failures
+ * Custom error class for API-related failures
+ * @class APIError
+ * @extends Error
  */
 class APIError extends Error {
+  /**
+   * Create an APIError
+   * @param {string} message - The error message
+   * @param {number} statusCode - HTTP status code (e.g., 502, 400)
+   */
   constructor(message, statusCode) {
     super(message);
     this.name = 'APIError';
+    /** @type {number} */
     this.statusCode = statusCode;
   }
 }
 
 /**
- * Custom error for network-related failures
+ * Custom error class for network-related failures
+ * @class NetworkError
+ * @extends Error
  */
 class NetworkError extends Error {
+  /**
+   * Create a NetworkError
+   * @param {string} message - The error message
+   */
   constructor(message) {
     super(message);
     this.name = 'NetworkError';
@@ -233,11 +247,6 @@ export class AIProvider {
    * @throws {Error} If API key is not configured or API call fails
    */
   async sendToHuggingFace(conversationHistory) {
-    const lastMessage = conversationHistory[conversationHistory.length - 1];
-    if (!lastMessage || !lastMessage.content) {
-      throw new APIError('Keine gültige Nachricht in der Konversationshistorie', 400);
-    }
-
     const apiKey = this.config.huggingfaceApiKey;
     
     if (!apiKey) {
@@ -246,6 +255,11 @@ export class AIProvider {
         'Erstelle einen kostenlosen Key auf https://huggingface.co/settings/tokens\n' +
         'Und füge ihn zur .env Datei hinzu: HUGGINGFACE_API_KEY=dein_key'
       );
+    }
+
+    const lastMessage = conversationHistory[conversationHistory.length - 1];
+    if (!lastMessage || !lastMessage.content) {
+      throw new APIError('Keine gültige Nachricht in der Konversationshistorie', 400);
     }
 
     const modelMap = {
