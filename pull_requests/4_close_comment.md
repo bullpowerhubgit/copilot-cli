@@ -1,0 +1,1 @@
+This pull request is being closed as verification has confirmed that all code changes are already complete. We will keep pull request #2 open for any documentation improvements necessary.
