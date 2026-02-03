@@ -4,6 +4,9 @@ import ora from 'ora';
 import { AIProvider } from './ai-provider.js';
 import { loadConfig, saveConfig } from './config.js';
 
+/**
+ * Available slash commands in interactive mode
+ */
 const COMMANDS = {
   '/help': 'Zeigt alle verfügbaren Befehle',
   '/model': 'Wähle ein anderes AI-Modell',
@@ -13,9 +16,17 @@ const COMMANDS = {
   '/feedback': 'Gib Feedback'
 };
 
+/** @type {Array<{role: string, content: string}>} */
 let conversationHistory = [];
+
+/** @type {AIProvider|null} */
 let aiProvider = null;
 
+/**
+ * Starts the interactive chat mode
+ * @param {string} [modelName] - Optional model to start with
+ * @returns {Promise<void>}
+ */
 export async function startInteractiveMode(modelName) {
   const config = loadConfig();
 
@@ -50,6 +61,11 @@ export async function startInteractiveMode(modelName) {
   }
 }
 
+/**
+ * Handles slash commands entered by the user
+ * @param {string} command - The command string (e.g., '/help')
+ * @returns {Promise<boolean>} Returns true if the program should exit
+ */
 async function handleCommand(command) {
   const cmd = command.split(' ')[0].toLowerCase();
 
@@ -87,6 +103,9 @@ async function handleCommand(command) {
   return false;
 }
 
+/**
+ * Displays help information with all available commands
+ */
 function showHelp() {
   console.log(chalk.bold('\n📖 Verfügbare Befehle:\n'));
 
@@ -96,6 +115,10 @@ function showHelp() {
   console.log();
 }
 
+/**
+ * Prompts the user to select a different AI model
+ * @returns {Promise<void>}
+ */
 async function selectModel() {
   const models = aiProvider.getAvailableModels();
 
@@ -116,15 +139,38 @@ async function selectModel() {
   console.log(chalk.green(`✓ Modell gewechselt zu: ${model}\n`));
 }
 
+/**
+ * Displays the current configuration (model and provider)
+ */
 function showConfig() {
   const config = loadConfig();
   console.log(chalk.bold('\n⚙️  Aktuelle Konfiguration:\n'));
-  console.log(chalk.cyan('  Modell:'), config.defaultModel);
+  console.log(chalk.cyan('  Modell:'), config.defaultModel || 'groq-llama-70b');
   console.log(chalk.cyan('  Provider:'), aiProvider.getProviderName());
+  
+  // Show which API keys are configured
+  console.log(chalk.cyan('\n  Konfigurierte API-Keys:'));
+  console.log(chalk.gray('    Groq:'), config.groqApiKey ? chalk.green('✓') : chalk.red('✗'));
+  console.log(chalk.gray('    OpenRouter:'), config.openrouterApiKey ? chalk.green('✓') : chalk.red('✗'));
+  console.log(chalk.gray('    Hugging Face:'), config.huggingfaceApiKey ? chalk.green('✓') : chalk.red('✗'));
+  console.log(chalk.gray('    Google:'), config.googleApiKey ? chalk.green('✓') : chalk.red('✗'));
+  console.log(chalk.gray('    Ollama:'), chalk.blue('(lokal)'));
   console.log();
 }
 
+/**
+ * Handles an AI request from the user
+ * Sends the message to the AI provider and displays the response
+ * @param {string} userInput - The user's input message
+ * @returns {Promise<void>}
+ */
 async function handleAIRequest(userInput) {
+  // Validate input
+  if (!userInput || userInput.trim() === '') {
+    console.log(chalk.yellow('⚠️  Bitte gib eine Nachricht ein.\n'));
+    return;
+  }
+
   // Füge zur Historie hinzu
   conversationHistory.push({
     role: 'user',
@@ -136,6 +182,11 @@ async function handleAIRequest(userInput) {
   try {
     const response = await aiProvider.sendMessage(conversationHistory);
     spinner.succeed('Antwort erhalten');
+
+    // Validate response
+    if (!response || response.trim() === '') {
+      throw new Error('Leere Antwort vom AI-Provider erhalten');
+    }
 
     conversationHistory.push({
       role: 'assistant',

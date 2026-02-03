@@ -9,9 +9,22 @@ const __dirname = path.dirname(__filename);
 // Lade Umgebungsvariablen
 dotenv.config();
 
+/** Configuration directory path */
 const CONFIG_DIR = path.join(process.env.HOME || process.env.USERPROFILE, '.copilot-cli');
+
+/** Configuration file path */
 const CONFIG_FILE = path.join(CONFIG_DIR, 'config.json');
 
+/**
+ * Default configuration object
+ * @typedef {Object} Config
+ * @property {string} defaultModel - Default AI model to use
+ * @property {string} groqApiKey - Groq API key
+ * @property {string} openrouterApiKey - OpenRouter API key
+ * @property {string} huggingfaceApiKey - Hugging Face API key
+ * @property {string} googleApiKey - Google API key
+ * @property {string} ollamaHost - Ollama host URL
+ */
 const DEFAULT_CONFIG = {
   defaultModel: 'groq-llama-70b',
   groqApiKey: process.env.GROQ_API_KEY || '',
@@ -21,6 +34,10 @@ const DEFAULT_CONFIG = {
   ollamaHost: process.env.OLLAMA_HOST || 'http://localhost:11434'
 };
 
+/**
+ * Loads configuration from file or creates default config
+ * @returns {Config} The loaded or default configuration
+ */
 export function loadConfig() {
   try {
     if (!fs.existsSync(CONFIG_DIR)) {
@@ -40,6 +57,10 @@ export function loadConfig() {
   }
 }
 
+/**
+ * Saves configuration to file
+ * @param {Config} config - Configuration object to save
+ */
 export function saveConfig(config) {
   try {
     if (!fs.existsSync(CONFIG_DIR)) {
@@ -52,6 +73,10 @@ export function saveConfig(config) {
   }
 }
 
+/**
+ * Returns the path to the configuration file
+ * @returns {string} The configuration file path
+ */
 export function getConfigPath() {
   return CONFIG_FILE;
 }

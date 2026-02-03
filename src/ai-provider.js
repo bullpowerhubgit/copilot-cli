@@ -1,12 +1,24 @@
 import fetch from 'node-fetch';
 import { loadConfig } from './config.js';
 
+/**
+ * AIProvider class - Manages interactions with multiple AI providers
+ * Supports: Groq, OpenRouter, Hugging Face, Google Gemini, and Ollama
+ */
 export class AIProvider {
+  /**
+   * Creates an AIProvider instance
+   * @param {string} modelName - The model to use (e.g., 'groq-llama-70b')
+   */
   constructor(modelName) {
     this.modelName = modelName || 'groq-llama';
     this.config = loadConfig();
   }
 
+  /**
+   * Returns a list of all available AI models across all providers
+   * @returns {Array<{name: string, value: string}>} Array of model objects
+   */
   getAvailableModels() {
     return [
       { name: '⚡ Groq Llama 3.1 70B (Schnell & Kostenlos)', value: 'groq-llama-70b' },
@@ -29,10 +41,18 @@ export class AIProvider {
     ];
   }
 
+  /**
+   * Sets the current AI model
+   * @param {string} modelName - The model identifier to switch to
+   */
   setModel(modelName) {
     this.modelName = modelName;
   }
 
+  /**
+   * Determines the provider name based on the current model
+   * @returns {string} The provider name (e.g., 'Groq', 'OpenRouter')
+   */
   getProviderName() {
     if (this.modelName.startsWith('groq-')) return 'Groq';
     if (this.modelName.startsWith('openrouter-')) return 'OpenRouter';
@@ -42,7 +62,18 @@ export class AIProvider {
     return 'Unbekannt';
   }
 
+  /**
+   * Sends a message to the appropriate AI provider based on the current model
+   * @param {Array<{role: string, content: string}>} conversationHistory - Chat history
+   * @returns {Promise<string>} The AI's response
+   * @throws {Error} If the provider is unknown or if the API call fails
+   */
   async sendMessage(conversationHistory) {
+    // Validate input
+    if (!Array.isArray(conversationHistory) || conversationHistory.length === 0) {
+      throw new Error('Conversation history must be a non-empty array');
+    }
+
     const provider = this.getProviderName();
     
     switch (provider) {
@@ -61,10 +92,16 @@ export class AIProvider {
     }
   }
 
+  /**
+   * Sends a message to the Groq API
+   * @param {Array<{role: string, content: string}>} conversationHistory - Chat history
+   * @returns {Promise<string>} The AI's response from Groq
+   * @throws {Error} If API key is missing or if the API call fails
+   */
   async sendToGroq(conversationHistory) {
     const apiKey = this.config.groqApiKey;
     
-    if (!apiKey) {
+    if (!apiKey || apiKey.trim() === '') {
       throw new Error(
         'Groq API-Key nicht konfiguriert!\n' +
         'Erstelle einen kostenlosen Key auf https://console.groq.com\n' +
@@ -102,10 +139,16 @@ export class AIProvider {
     return data.choices[0].message.content;
   }
 
+  /**
+   * Sends a message to the OpenRouter API
+   * @param {Array<{role: string, content: string}>} conversationHistory - Chat history
+   * @returns {Promise<string>} The AI's response from OpenRouter
+   * @throws {Error} If API key is missing or if the API call fails
+   */
   async sendToOpenRouter(conversationHistory) {
     const apiKey = this.config.openrouterApiKey;
     
-    if (!apiKey) {
+    if (!apiKey || apiKey.trim() === '') {
       throw new Error(
         'OpenRouter API-Key nicht konfiguriert!\n' +
         'Erstelle einen kostenlosen Key auf https://openrouter.ai\n' +
@@ -143,10 +186,16 @@ export class AIProvider {
     return data.choices[0].message.content;
   }
 
+  /**
+   * Sends a message to the Hugging Face Inference API
+   * @param {Array<{role: string, content: string}>} conversationHistory - Chat history
+   * @returns {Promise<string>} The AI's response from Hugging Face
+   * @throws {Error} If API key is missing or if the API call fails
+   */
   async sendToHuggingFace(conversationHistory) {
     const apiKey = this.config.huggingfaceApiKey;
     
-    if (!apiKey) {
+    if (!apiKey || apiKey.trim() === '') {
       throw new Error(
         'Hugging Face API-Key nicht konfiguriert!\n' +
         'Erstelle einen kostenlosen Key auf https://huggingface.co/settings/tokens\n' +
@@ -190,10 +239,16 @@ export class AIProvider {
     return data[0]?.generated_text || data.generated_text || 'Keine Antwort erhalten';
   }
 
+  /**
+   * Sends a message to the Google Gemini API
+   * @param {Array<{role: string, content: string}>} conversationHistory - Chat history
+   * @returns {Promise<string>} The AI's response from Google Gemini
+   * @throws {Error} If API key is missing or if the API call fails
+   */
   async sendToGoogleGemini(conversationHistory) {
     const apiKey = this.config.googleApiKey;
     
-    if (!apiKey) {
+    if (!apiKey || apiKey.trim() === '') {
       throw new Error(
         'Google API-Key nicht konfiguriert!\n' +
         'Erstelle einen kostenlosen Key auf https://makersuite.google.com/app/apikey\n' +
@@ -240,6 +295,12 @@ export class AIProvider {
     return data.candidates[0]?.content?.parts[0]?.text || 'Keine Antwort erhalten';
   }
 
+  /**
+   * Sends a message to a local Ollama instance
+   * @param {Array<{role: string, content: string}>} conversationHistory - Chat history
+   * @returns {Promise<string>} The AI's response from Ollama
+   * @throws {Error} If Ollama is not running or if the API call fails
+   */
   async sendToOllama(conversationHistory) {
     const ollamaHost = this.config.ollamaHost || 'http://localhost:11434';
 
