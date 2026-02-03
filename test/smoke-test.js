@@ -9,6 +9,16 @@ import { AIProvider } from '../src/ai-provider.js';
 import { loadConfig } from '../src/config.js';
 import chalk from 'chalk';
 
+// Test configuration constants
+const MINIMUM_EXPECTED_MODELS = 10;
+const EXPECTED_MODEL_SAMPLES = [
+  'groq-llama-70b',      // Groq provider
+  'openrouter-gpt35',    // OpenRouter provider
+  'huggingface-llama',   // Hugging Face provider
+  'google-gemini-flash', // Google Gemini provider
+  'ollama-llama'         // Ollama provider
+];
+
 let testsPassed = 0;
 let testsFailed = 0;
 
@@ -68,13 +78,16 @@ test('AIProvider getAvailableModels returns array', () => {
 test('AIProvider getAvailableModels returns expected models', () => {
   const provider = new AIProvider();
   const models = provider.getAvailableModels();
-  // Test that we have a reasonable number of models (at least 10) rather than exact count
-  if (models.length < 10) throw new Error('Expected at least 10 models, got ' + models.length);
-  // Verify some key models exist
+  // Test that we have a reasonable number of models rather than exact count
+  if (models.length < MINIMUM_EXPECTED_MODELS) {
+    throw new Error('Expected at least ' + MINIMUM_EXPECTED_MODELS + ' models, got ' + models.length);
+  }
+  // Verify representative models from each provider exist
   const modelValues = models.map(m => m.value);
-  const expectedModels = ['groq-llama-70b', 'openrouter-gpt35', 'huggingface-llama', 'google-gemini-flash', 'ollama-llama'];
-  for (const expected of expectedModels) {
-    if (!modelValues.includes(expected)) throw new Error('Missing expected model: ' + expected);
+  for (const expected of EXPECTED_MODEL_SAMPLES) {
+    if (!modelValues.includes(expected)) {
+      throw new Error('Missing expected model: ' + expected);
+    }
   }
 });
 
