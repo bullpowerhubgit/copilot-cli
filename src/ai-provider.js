@@ -257,11 +257,6 @@ export class AIProvider {
       );
     }
 
-    const lastMessage = conversationHistory[conversationHistory.length - 1];
-    if (!lastMessage || !lastMessage.content) {
-      throw new APIError('Keine gültige Nachricht in der Konversationshistorie', 400);
-    }
-
     const modelMap = {
       'huggingface-llama': 'meta-llama/Llama-2-7b-chat-hf',
       'huggingface-mistral': 'mistralai/Mistral-7B-Instruct-v0.2',
@@ -269,6 +264,11 @@ export class AIProvider {
     };
 
     try {
+      const lastMessage = conversationHistory[conversationHistory.length - 1];
+      if (!lastMessage || !lastMessage.content) {
+        throw new APIError('Letzte Nachricht in der Konversationshistorie ist ungültig oder fehlt', 400);
+      }
+
       const response = await fetch(
         `https://api-inference.huggingface.co/models/${modelMap[this.modelName] || modelMap['huggingface-mistral']}`,
         {
