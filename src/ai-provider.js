@@ -1,12 +1,24 @@
 import fetch from 'node-fetch';
 import { loadConfig } from './config.js';
 
+/**
+ * AIProvider class handles communication with various AI service providers
+ * Supports: Groq, OpenRouter, Hugging Face, Google Gemini, and Ollama
+ */
 export class AIProvider {
+  /**
+   * Create an AIProvider instance
+   * @param {string} modelName - The model identifier (e.g., 'groq-llama-70b')
+   */
   constructor(modelName) {
     this.modelName = modelName || 'groq-llama';
     this.config = loadConfig();
   }
 
+  /**
+   * Get list of all available AI models
+   * @returns {Array<{name: string, value: string}>} Array of model objects
+   */
   getAvailableModels() {
     return [
       { name: '⚡ Groq Llama 3.1 70B (Schnell & Kostenlos)', value: 'groq-llama-70b' },
@@ -29,10 +41,18 @@ export class AIProvider {
     ];
   }
 
+  /**
+   * Set the active AI model
+   * @param {string} modelName - The model identifier to switch to
+   */
   setModel(modelName) {
     this.modelName = modelName;
   }
 
+  /**
+   * Get the provider name from the current model
+   * @returns {string} The provider name (e.g., 'Groq', 'OpenRouter')
+   */
   getProviderName() {
     if (this.modelName.startsWith('groq-')) return 'Groq';
     if (this.modelName.startsWith('openrouter-')) return 'OpenRouter';
@@ -42,6 +62,12 @@ export class AIProvider {
     return 'Unbekannt';
   }
 
+  /**
+   * Send a message to the configured AI provider
+   * @param {Array<{role: string, content: string}>} conversationHistory - Chat history
+   * @returns {Promise<string>} The AI-generated response
+   * @throws {Error} If the provider is unknown or the API call fails
+   */
   async sendMessage(conversationHistory) {
     const provider = this.getProviderName();
     
@@ -61,6 +87,12 @@ export class AIProvider {
     }
   }
 
+  /**
+   * Send a message to Groq AI
+   * @param {Array} conversationHistory - Array of message objects with role and content
+   * @returns {Promise<string>} The AI response text
+   * @throws {Error} If API key is not configured or API call fails
+   */
   async sendToGroq(conversationHistory) {
     const apiKey = this.config.groqApiKey;
     
@@ -79,29 +111,47 @@ export class AIProvider {
       'groq-gemma': 'gemma2-9b-it'
     };
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: modelMap[this.modelName] || modelMap['groq-llama-70b'],
-        messages: conversationHistory,
-        temperature: 0.7,
-        max_tokens: 2048
-      })
-    });
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model: modelMap[this.modelName] || modelMap['groq-llama-70b'],
+          messages: conversationHistory,
+          temperature: 0.7,
+          max_tokens: 2048
+        })
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Groq API Fehler: ${error}`);
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Groq API Fehler (${response.status}): ${error}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Ungültige Antwort vom Groq API: Keine Nachricht erhalten');
+      }
+      
+      return data.choices[0].message.content;
+    } catch (error) {
+      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+        throw error;
+      }
+      throw new Error(`Netzwerkfehler bei Groq API: ${error.message}`);
     }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
   }
 
+  /**
+   * Send a message to OpenRouter AI
+   * @param {Array} conversationHistory - Array of message objects with role and content
+   * @returns {Promise<string>} The AI response text
+   * @throws {Error} If API key is not configured or API call fails
+   */
   async sendToOpenRouter(conversationHistory) {
     const apiKey = this.config.openrouterApiKey;
     
@@ -120,29 +170,47 @@ export class AIProvider {
       'openrouter-llama': 'meta-llama/llama-3.1-8b-instruct:free'
     };
 
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': 'https://github.com/copilot-cli',
-        'X-Title': 'Copilot CLI Client'
-      },
-      body: JSON.stringify({
-        model: modelMap[this.modelName] || modelMap['openrouter-mistral'],
-        messages: conversationHistory
-      })
-    });
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://github.com/copilot-cli',
+          'X-Title': 'Copilot CLI Client'
+        },
+        body: JSON.stringify({
+          model: modelMap[this.modelName] || modelMap['openrouter-mistral'],
+          messages: conversationHistory
+        })
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`OpenRouter API Fehler: ${error}`);
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`OpenRouter API Fehler (${response.status}): ${error}`);
+      }
+
+      const data = await response.json();
+      
+      if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+        throw new Error('Ungültige Antwort vom OpenRouter API: Keine Nachricht erhalten');
+      }
+      
+      return data.choices[0].message.content;
+    } catch (error) {
+      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+        throw error;
+      }
+      throw new Error(`Netzwerkfehler bei OpenRouter API: ${error.message}`);
     }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
   }
 
+  /**
+   * Send a message to Hugging Face Inference API
+   * @param {Array} conversationHistory - Array of message objects with role and content
+   * @returns {Promise<string>} The AI response text
+   * @throws {Error} If API key is not configured or API call fails
+   */
   async sendToHuggingFace(conversationHistory) {
     const apiKey = this.config.huggingfaceApiKey;
     
@@ -162,34 +230,57 @@ export class AIProvider {
 
     const lastMessage = conversationHistory[conversationHistory.length - 1];
     
-    const response = await fetch(
-      `https://api-inference.huggingface.co/models/${modelMap[this.modelName] || modelMap['huggingface-mistral']}`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${apiKey}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          inputs: lastMessage.content,
-          parameters: {
-            max_new_tokens: 500,
-            temperature: 0.7,
-            return_full_text: false
-          }
-        })
-      }
-    );
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Hugging Face API Fehler: ${error}`);
+    if (!lastMessage || !lastMessage.content) {
+      throw new Error('Keine gültige Nachricht in der Konversationshistorie');
     }
 
-    const data = await response.json();
-    return data[0]?.generated_text || data.generated_text || 'Keine Antwort erhalten';
+    try {
+      const response = await fetch(
+        `https://api-inference.huggingface.co/models/${modelMap[this.modelName] || modelMap['huggingface-mistral']}`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${apiKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            inputs: lastMessage.content,
+            parameters: {
+              max_new_tokens: 500,
+              temperature: 0.7,
+              return_full_text: false
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Hugging Face API Fehler (${response.status}): ${error}`);
+      }
+
+      const data = await response.json();
+      
+      const generatedText = data[0]?.generated_text || data.generated_text;
+      if (!generatedText) {
+        throw new Error('Ungültige Antwort vom Hugging Face API: Kein Text generiert');
+      }
+      
+      return generatedText;
+    } catch (error) {
+      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+        throw error;
+      }
+      throw new Error(`Netzwerkfehler bei Hugging Face API: ${error.message}`);
+    }
   }
 
+  /**
+   * Send a message to Google Gemini API
+   * @param {Array} conversationHistory - Array of message objects with role and content
+   * @returns {Promise<string>} The AI response text
+   * @throws {Error} If API key is not configured or API call fails
+   */
   async sendToGoogleGemini(conversationHistory) {
     const apiKey = this.config.googleApiKey;
     
@@ -214,32 +305,51 @@ export class AIProvider {
       parts: [{ text: msg.content }]
     }));
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          contents: contents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 2048
-          }
-        })
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            contents: contents,
+            generationConfig: {
+              temperature: 0.7,
+              maxOutputTokens: 2048
+            }
+          })
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.text();
+        throw new Error(`Google Gemini API Fehler (${response.status}): ${error}`);
       }
-    );
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Google Gemini API Fehler: ${error}`);
+      const data = await response.json();
+      
+      const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!generatedText) {
+        throw new Error('Ungültige Antwort vom Google Gemini API: Kein Text generiert');
+      }
+      
+      return generatedText;
+    } catch (error) {
+      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+        throw error;
+      }
+      throw new Error(`Netzwerkfehler bei Google Gemini API: ${error.message}`);
     }
-
-    const data = await response.json();
-    return data.candidates[0]?.content?.parts[0]?.text || 'Keine Antwort erhalten';
   }
 
+  /**
+   * Send a message to Ollama (local AI)
+   * @param {Array} conversationHistory - Array of message objects with role and content
+   * @returns {Promise<string>} The AI response text
+   * @throws {Error} If Ollama is not running or API call fails
+   */
   async sendToOllama(conversationHistory) {
     const ollamaHost = this.config.ollamaHost || 'http://localhost:11434';
 
@@ -270,8 +380,17 @@ export class AIProvider {
       }
 
       const data = await response.json();
-      return data.message?.content || 'Keine Antwort erhalten';
+      
+      const generatedText = data.message?.content;
+      if (!generatedText) {
+        throw new Error('Ungültige Antwort von Ollama: Keine Nachricht erhalten');
+      }
+      
+      return generatedText;
     } catch (error) {
+      if (error.message.includes('nicht erreichbar') || error.message.includes('Ungültige Antwort')) {
+        throw error;
+      }
       throw new Error(
         `Ollama Fehler: ${error.message}\n\n` +
         'Installiere Ollama von https://ollama.ai\n' +
