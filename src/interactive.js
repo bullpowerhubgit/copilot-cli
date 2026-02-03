@@ -4,6 +4,9 @@ import ora from 'ora';
 import { AIProvider } from './ai-provider.js';
 import { loadConfig, saveConfig } from './config.js';
 
+/**
+ * Available slash commands in the interactive mode
+ */
 const COMMANDS = {
   '/help': 'Zeigt alle verfügbaren Befehle',
   '/model': 'Wähle ein anderes AI-Modell',
@@ -16,6 +19,10 @@ const COMMANDS = {
 let conversationHistory = [];
 let aiProvider = null;
 
+/**
+ * Start the interactive chat mode
+ * @param {string} modelName - Optional model name to use
+ */
 export async function startInteractiveMode(modelName) {
   const config = loadConfig();
 
@@ -50,6 +57,11 @@ export async function startInteractiveMode(modelName) {
   }
 }
 
+/**
+ * Handle slash commands entered by the user
+ * @param {string} command - The command string (e.g., '/help')
+ * @returns {Promise<boolean>} True if should exit, false otherwise
+ */
 async function handleCommand(command) {
   const cmd = command.split(' ')[0].toLowerCase();
 
@@ -87,6 +99,9 @@ async function handleCommand(command) {
   return false;
 }
 
+/**
+ * Display help information with all available commands
+ */
 function showHelp() {
   console.log(chalk.bold('\n📖 Verfügbare Befehle:\n'));
 
@@ -96,6 +111,9 @@ function showHelp() {
   console.log();
 }
 
+/**
+ * Allow user to select a different AI model
+ */
 async function selectModel() {
   const models = aiProvider.getAvailableModels();
 
@@ -116,6 +134,9 @@ async function selectModel() {
   console.log(chalk.green(`✓ Modell gewechselt zu: ${model}\n`));
 }
 
+/**
+ * Display current configuration including model and provider
+ */
 function showConfig() {
   const config = loadConfig();
   console.log(chalk.bold('\n⚙️  Aktuelle Konfiguration:\n'));
@@ -124,6 +145,11 @@ function showConfig() {
   console.log();
 }
 
+/**
+ * Handle AI request from user input
+ * Sends message to AI provider and displays response
+ * @param {string} userInput - The user's message/question
+ */
 async function handleAIRequest(userInput) {
   // Füge zur Historie hinzu
   conversationHistory.push({
