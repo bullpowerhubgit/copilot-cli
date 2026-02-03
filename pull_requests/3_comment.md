@@ -1,0 +1,1 @@
+Closing this pull request as the code related to the changes is already complete. Pull request #2 with documentation improvements suffices for our current needs.
