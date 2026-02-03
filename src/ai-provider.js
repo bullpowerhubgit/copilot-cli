@@ -169,7 +169,7 @@ export class AIProvider {
       const data = await response.json();
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new APIError('Ungültige Antwort vom Groq API: Keine Nachricht erhalten', 500);
+        throw new APIError('Ungültige Antwort vom Groq API: Keine Nachricht erhalten', 502);
       }
       
       return data.choices[0].message.content;
@@ -228,7 +228,7 @@ export class AIProvider {
       const data = await response.json();
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new APIError('Ungültige Antwort vom OpenRouter API: Keine Nachricht erhalten', 500);
+        throw new APIError('Ungültige Antwort vom OpenRouter API: Keine Nachricht erhalten', 502);
       }
       
       return data.choices[0].message.content;
@@ -257,6 +257,11 @@ export class AIProvider {
       );
     }
 
+    const lastMessage = conversationHistory[conversationHistory.length - 1];
+    if (!lastMessage || !lastMessage.content) {
+      throw new APIError('Letzte Nachricht in der Konversationshistorie ist ungültig oder fehlt', 400);
+    }
+
     const modelMap = {
       'huggingface-llama': 'meta-llama/Llama-2-7b-chat-hf',
       'huggingface-mistral': 'mistralai/Mistral-7B-Instruct-v0.2',
@@ -264,11 +269,6 @@ export class AIProvider {
     };
 
     try {
-      const lastMessage = conversationHistory[conversationHistory.length - 1];
-      if (!lastMessage || !lastMessage.content) {
-        throw new APIError('Letzte Nachricht in der Konversationshistorie ist ungültig oder fehlt', 400);
-      }
-
       const response = await fetch(
         `https://api-inference.huggingface.co/models/${modelMap[this.modelName] || modelMap['huggingface-mistral']}`,
         {
@@ -297,7 +297,7 @@ export class AIProvider {
       
       const generatedText = data[0]?.generated_text || data.generated_text;
       if (!generatedText) {
-        throw new APIError('Ungültige Antwort vom Hugging Face API: Kein Text generiert', 500);
+        throw new APIError('Ungültige Antwort vom Hugging Face API: Kein Text generiert', 502);
       }
       
       return generatedText;
@@ -366,7 +366,7 @@ export class AIProvider {
       
       const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!generatedText) {
-        throw new APIError('Ungültige Antwort vom Google Gemini API: Kein Text generiert', 500);
+        throw new APIError('Ungültige Antwort vom Google Gemini API: Kein Text generiert', 502);
       }
       
       return generatedText;
@@ -417,7 +417,7 @@ export class AIProvider {
       
       const generatedText = data.message?.content;
       if (!generatedText) {
-        throw new APIError('Ungültige Antwort von Ollama: Keine Nachricht erhalten', 500);
+        throw new APIError('Ungültige Antwort von Ollama: Keine Nachricht erhalten', 502);
       }
       
       return generatedText;
