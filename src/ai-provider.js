@@ -169,7 +169,7 @@ export class AIProvider {
       const data = await response.json();
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new APIError('Ungültige Antwort vom Groq API: Keine Nachricht erhalten', 502);
+        throw new APIError('Ungültige Antwort vom Groq API: Keine Nachricht erhalten', 500);
       }
       
       return data.choices[0].message.content;
@@ -228,7 +228,7 @@ export class AIProvider {
       const data = await response.json();
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new APIError('Ungültige Antwort vom OpenRouter API: Keine Nachricht erhalten', 502);
+        throw new APIError('Ungültige Antwort vom OpenRouter API: Keine Nachricht erhalten', 500);
       }
       
       return data.choices[0].message.content;
@@ -297,7 +297,7 @@ export class AIProvider {
       
       const generatedText = data[0]?.generated_text || data.generated_text;
       if (!generatedText) {
-        throw new APIError('Ungültige Antwort vom Hugging Face API: Kein Text generiert', 502);
+        throw new APIError('Ungültige Antwort vom Hugging Face API: Kein Text generiert', 500);
       }
       
       return generatedText;
@@ -366,7 +366,7 @@ export class AIProvider {
       
       const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!generatedText) {
-        throw new APIError('Ungültige Antwort vom Google Gemini API: Kein Text generiert', 502);
+        throw new APIError('Ungültige Antwort vom Google Gemini API: Kein Text generiert', 500);
       }
       
       return generatedText;
@@ -417,7 +417,7 @@ export class AIProvider {
       
       const generatedText = data.message?.content;
       if (!generatedText) {
-        throw new APIError('Ungültige Antwort von Ollama: Keine Nachricht erhalten', 502);
+        throw new APIError('Ungültige Antwort von Ollama: Keine Nachricht erhalten', 500);
       }
       
       return generatedText;
