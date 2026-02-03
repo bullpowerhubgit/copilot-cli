@@ -2,6 +2,27 @@ import fetch from 'node-fetch';
 import { loadConfig } from './config.js';
 
 /**
+ * Custom error for API-related failures
+ */
+class APIError extends Error {
+  constructor(message, statusCode) {
+    super(message);
+    this.name = 'APIError';
+    this.statusCode = statusCode;
+  }
+}
+
+/**
+ * Custom error for network-related failures
+ */
+class NetworkError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+
+/**
  * AIProvider class handles communication with various AI service providers
  * Supports: Groq, OpenRouter, Hugging Face, Google Gemini, and Ollama
  */
@@ -128,21 +149,21 @@ export class AIProvider {
 
       if (!response.ok) {
         const error = await response.text();
-        throw new Error(`Groq API Fehler (${response.status}): ${error}`);
+        throw new APIError(`Groq API Fehler: ${error}`, response.status);
       }
 
       const data = await response.json();
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('Ungültige Antwort vom Groq API: Keine Nachricht erhalten');
+        throw new APIError('Ungültige Antwort vom Groq API: Keine Nachricht erhalten', 0);
       }
       
       return data.choices[0].message.content;
     } catch (error) {
-      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+      if (error instanceof APIError) {
         throw error;
       }
-      throw new Error(`Netzwerkfehler bei Groq API: ${error.message}`);
+      throw new NetworkError(`Netzwerkfehler bei Groq API: ${error.message}`);
     }
   }
 
@@ -187,21 +208,21 @@ export class AIProvider {
 
       if (!response.ok) {
         const error = await response.text();
-        throw new Error(`OpenRouter API Fehler (${response.status}): ${error}`);
+        throw new APIError(`OpenRouter API Fehler: ${error}`, response.status);
       }
 
       const data = await response.json();
       
       if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-        throw new Error('Ungültige Antwort vom OpenRouter API: Keine Nachricht erhalten');
+        throw new APIError('Ungültige Antwort vom OpenRouter API: Keine Nachricht erhalten', 0);
       }
       
       return data.choices[0].message.content;
     } catch (error) {
-      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+      if (error instanceof APIError) {
         throw error;
       }
-      throw new Error(`Netzwerkfehler bei OpenRouter API: ${error.message}`);
+      throw new NetworkError(`Netzwerkfehler bei OpenRouter API: ${error.message}`);
     }
   }
 
@@ -212,6 +233,12 @@ export class AIProvider {
    * @throws {Error} If API key is not configured or API call fails
    */
   async sendToHuggingFace(conversationHistory) {
+    // Validate input first (fail fast)
+    const lastMessage = conversationHistory[conversationHistory.length - 1];
+    if (!lastMessage || !lastMessage.content) {
+      throw new Error('Keine gültige Nachricht in der Konversationshistorie');
+    }
+
     const apiKey = this.config.huggingfaceApiKey;
     
     if (!apiKey) {
@@ -227,12 +254,6 @@ export class AIProvider {
       'huggingface-mistral': 'mistralai/Mistral-7B-Instruct-v0.2',
       'huggingface-zephyr': 'HuggingFaceH4/zephyr-7b-beta'
     };
-
-    const lastMessage = conversationHistory[conversationHistory.length - 1];
-    
-    if (!lastMessage || !lastMessage.content) {
-      throw new Error('Keine gültige Nachricht in der Konversationshistorie');
-    }
 
     try {
       const response = await fetch(
@@ -256,22 +277,22 @@ export class AIProvider {
 
       if (!response.ok) {
         const error = await response.text();
-        throw new Error(`Hugging Face API Fehler (${response.status}): ${error}`);
+        throw new APIError(`Hugging Face API Fehler: ${error}`, response.status);
       }
 
       const data = await response.json();
       
       const generatedText = data[0]?.generated_text || data.generated_text;
       if (!generatedText) {
-        throw new Error('Ungültige Antwort vom Hugging Face API: Kein Text generiert');
+        throw new APIError('Ungültige Antwort vom Hugging Face API: Kein Text generiert', 0);
       }
       
       return generatedText;
     } catch (error) {
-      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+      if (error instanceof APIError) {
         throw error;
       }
-      throw new Error(`Netzwerkfehler bei Hugging Face API: ${error.message}`);
+      throw new NetworkError(`Netzwerkfehler bei Hugging Face API: ${error.message}`);
     }
   }
 
@@ -325,22 +346,22 @@ export class AIProvider {
 
       if (!response.ok) {
         const error = await response.text();
-        throw new Error(`Google Gemini API Fehler (${response.status}): ${error}`);
+        throw new APIError(`Google Gemini API Fehler: ${error}`, response.status);
       }
 
       const data = await response.json();
       
       const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (!generatedText) {
-        throw new Error('Ungültige Antwort vom Google Gemini API: Kein Text generiert');
+        throw new APIError('Ungültige Antwort vom Google Gemini API: Kein Text generiert', 0);
       }
       
       return generatedText;
     } catch (error) {
-      if (error.message.includes('API Fehler') || error.message.includes('Ungültige Antwort')) {
+      if (error instanceof APIError) {
         throw error;
       }
-      throw new Error(`Netzwerkfehler bei Google Gemini API: ${error.message}`);
+      throw new NetworkError(`Netzwerkfehler bei Google Gemini API: ${error.message}`);
     }
   }
 
@@ -376,22 +397,22 @@ export class AIProvider {
       });
 
       if (!response.ok) {
-        throw new Error(`Ollama ist nicht erreichbar. Stelle sicher, dass Ollama läuft: ollama serve`);
+        throw new APIError(`Ollama ist nicht erreichbar. Stelle sicher, dass Ollama läuft: ollama serve`, response.status);
       }
 
       const data = await response.json();
       
       const generatedText = data.message?.content;
       if (!generatedText) {
-        throw new Error('Ungültige Antwort von Ollama: Keine Nachricht erhalten');
+        throw new APIError('Ungültige Antwort von Ollama: Keine Nachricht erhalten', 0);
       }
       
       return generatedText;
     } catch (error) {
-      if (error.message.includes('nicht erreichbar') || error.message.includes('Ungültige Antwort')) {
+      if (error instanceof APIError) {
         throw error;
       }
-      throw new Error(
+      throw new NetworkError(
         `Ollama Fehler: ${error.message}\n\n` +
         'Installiere Ollama von https://ollama.ai\n' +
         `Führe dann aus: ollama pull ${model}\n` +
