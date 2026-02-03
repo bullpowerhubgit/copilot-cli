@@ -233,7 +233,6 @@ export class AIProvider {
    * @throws {Error} If API key is not configured or API call fails
    */
   async sendToHuggingFace(conversationHistory) {
-    // Validate input first (fail fast)
     const lastMessage = conversationHistory[conversationHistory.length - 1];
     if (!lastMessage || !lastMessage.content) {
       throw new APIError('Keine gültige Nachricht in der Konversationshistorie', 400);
